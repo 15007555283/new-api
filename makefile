@@ -1,13 +1,6 @@
-<<<<<<< HEAD
-FRONTEND_DIR = ./web/default
-BACKEND_DIR = .
-DEV_FRONTEND_DEFAULT_PORT ?= 5173
-DEV_FRONTEND_CLASSIC_PORT ?= 5174
-=======
 WEB_DIR = ./web
 API_DIR = .
 DEV_WEB_PORT ?= 5173
->>>>>>> v1.0.0-rc.30
 DEV_COMPOSE_FILE = docker-compose.dev.yml
 DEV_POSTGRES_SERVICE = postgres
 DEV_API_SERVICE = new-api
@@ -18,36 +11,10 @@ BUILD_FILE_DIR = ./dist
 REGISTER_URL := registry.cn-shenzhen.aliyuncs.com
 NAME_SPACE := iootx_ai
 
-<<<<<<< HEAD
-.PHONY: all build-frontend build-all-frontends build-backend build-no-frontend start-backend dev dev-api dev-api-rebuild dev-web dev-web-classic reset-setup
-=======
 .PHONY: all build-web build-all-web start-api dev dev-api dev-api-rebuild dev-web reset-setup test
->>>>>>> v1.0.0-rc.30
 
 all: build-all-web start-api
 
-<<<<<<< HEAD
-build-backend:
-	@echo "Building backend only (no frontend)..."
-	@cd $(BACKEND_DIR) && go build -tags no_frontend -o new-api
-
-build-admin:
-	@echo "Building backend only (no frontend)..."
-	@cd $(BACKEND_DIR) && go build -o new-api-admin
-
-build-no-frontend: build-backend
-
-build-frontend:
-	@echo "Building default frontend..."
-	@cd ./web && bun install --frozen-lockfile
-	@cd $(FRONTEND_DIR) && DISABLE_ESLINT_PLUGIN='true' VITE_REACT_APP_VERSION=$(cat ../../VERSION) bun run build
-
-build-all-frontends: build-frontend
-
-start-backend:
-	@echo "Starting backend dev server..."
-	@cd $(BACKEND_DIR) && go run . &
-=======
 build-web:
 	@echo "Building web frontend..."
 	@cd $(WEB_DIR) && bun install --frozen-lockfile
@@ -57,8 +24,7 @@ build-all-web: build-web
 
 start-api:
 	@echo "Starting api dev server..."
-	@cd $(API_DIR) && go run main.go &
->>>>>>> v1.0.0-rc.30
+	@cd $(API_DIR) && go run . &
 
 dev-api:
 	@echo "Starting api services (docker)..."

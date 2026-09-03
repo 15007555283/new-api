@@ -16,24 +16,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-<<<<<<< HEAD:web/default/src/routes/index.tsx
-
-// import { createFileRoute } from '@tanstack/react-router'
-// import { Home } from '@/features/home'
-
-// export const Route = createFileRoute('/')({
-//   component: Home,
-// })
-
 import { createFileRoute, redirect } from '@tanstack/react-router'
-=======
-import { createFileRoute } from '@tanstack/react-router'
-
-import { Home } from '@/features/home'
->>>>>>> v1.0.0-rc.30:web/src/routes/index.tsx
 
 export const Route = createFileRoute('/')({
   beforeLoad: () => {
-  throw redirect({ to: '/sign-in' })
+    throw redirect({ to: '/sign-in' })
   },
 })

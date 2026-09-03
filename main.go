@@ -2,12 +2,8 @@ package main
 
 import (
 	"bytes"
-<<<<<<< HEAD
-=======
 	"context"
-	"embed"
 	"errors"
->>>>>>> v1.0.0-rc.30
 	"fmt"
 	"log"
 	"net/http"
@@ -43,15 +39,6 @@ import (
 	_ "net/http/pprof"
 )
 
-<<<<<<< HEAD
-=======
-//go:embed web/dist
-var buildFS embed.FS
-
-//go:embed web/dist/index.html
-var indexPage []byte
-
->>>>>>> v1.0.0-rc.30
 func main() {
 	if len(os.Args) > 1 && os.Args[1] == "plugin" {
 		os.Exit(jsplugin.RunCLI(os.Args[2:], os.Stdout, os.Stderr))
@@ -206,17 +193,9 @@ func main() {
 	InjectGoogleAnalytics()
 
 	// 设置路由
-<<<<<<< HEAD
-	router.SetRouter(server, router.ThemeAssets{
-		DefaultBuildFS:   buildFS,
-		DefaultIndexPage: indexPage,
-		// ClassicBuildFS:   classicBuildFS,
-		// ClassicIndexPage: classicIndexPage,
-=======
 	router.SetRouter(server, router.WebAssets{
 		BuildFS:   buildFS,
 		IndexPage: indexPage,
->>>>>>> v1.0.0-rc.30
 	})
 	var port = os.Getenv("PORT")
 	if port == "" {
@@ -275,10 +254,6 @@ func InjectUmamiAnalytics() {
 	analyticsInject := []byte(analyticsInjectBuilder.String())
 	placeholder := []byte("<!--umami-->\n")
 	indexPage = bytes.ReplaceAll(indexPage, placeholder, analyticsInject)
-<<<<<<< HEAD
-	// classicIndexPage = bytes.ReplaceAll(classicIndexPage, placeholder, analyticsInject)
-=======
->>>>>>> v1.0.0-rc.30
 }
 
 func InjectGoogleAnalytics() {
@@ -302,10 +277,6 @@ func InjectGoogleAnalytics() {
 	analyticsInject := []byte(analyticsInjectBuilder.String())
 	placeholder := []byte("<!--Google Analytics-->\n")
 	indexPage = bytes.ReplaceAll(indexPage, placeholder, analyticsInject)
-<<<<<<< HEAD
-	// classicIndexPage = bytes.ReplaceAll(classicIndexPage, placeholder, analyticsInject)
-=======
->>>>>>> v1.0.0-rc.30
 }
 
 func InitResources() error {

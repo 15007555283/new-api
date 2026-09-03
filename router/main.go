@@ -25,19 +25,8 @@ func SetRouter(router *gin.Engine, assets WebAssets) {
 		frontendBaseUrl = ""
 		common.SysLog("FRONTEND_BASE_URL is ignored on master node")
 	}
-<<<<<<< HEAD
-	if frontendBaseUrl == "" && len(assets.DefaultIndexPage) == 0 {
-		// Built without frontend (no_frontend tag): serve a plain 404 for all web routes.
-		router.NoRoute(func(c *gin.Context) {
-			c.Set(middleware.RouteTagKey, "web")
-			c.Status(http.StatusNotFound)
-		})
-	} else if frontendBaseUrl == "" {
-		SetWebRouter(router, assets)
-=======
 	if frontendBaseUrl == "" {
 		SetWebRouter(router, assets, pluginDispatcher)
->>>>>>> v1.0.0-rc.30
 	} else {
 		frontendBaseUrl = strings.TrimSuffix(frontendBaseUrl, "/")
 		router.NoRoute(

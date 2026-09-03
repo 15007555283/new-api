@@ -67,11 +67,7 @@ export default defineConfig(({ envMode }) => {
     },
     server: {
       host: '0.0.0.0',
-<<<<<<< HEAD:web/default/rsbuild.config.ts
-      port: 3001,
-=======
       strictPort: false,
->>>>>>> v1.0.0-rc.30:web/rsbuild.config.ts
       proxy: devProxy,
     },
     output: {
