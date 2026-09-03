@@ -10,6 +10,7 @@ DEV_SQLITE_PATH ?= one-api.db
 BUILD_FILE_DIR = ./dist
 REGISTER_URL := registry.cn-shenzhen.aliyuncs.com
 NAME_SPACE := iootx_ai
+NEW_API_OFFICIAL_TAG ?= v1.0.0-rc.30
 
 .PHONY: all build-web build-all-web start-api dev dev-api dev-api-rebuild dev-web reset-setup test
 
@@ -88,9 +89,11 @@ build-api-pro:
 	echo "FILE_NAME: $$BUILD_FILE_NAME" && \
 	echo "BUILD_NAME: $$BUILD_NAME" && \
 	echo "IMAGE_VERSION: $$IMAGE_VERSION" && \
+	echo "NEW_API_OFFICIAL_TAG: $(NEW_API_OFFICIAL_TAG)" && \
 	docker build --platform linux/amd64 -t $$BUILD_NAME:$$IMAGE_VERSION \
 		--build-arg MODE=$$BUILD_MODE \
 		--build-arg VERSION=$$IMAGE_VERSION \
+		--build-arg NEW_API_OFFICIAL_TAG=$(NEW_API_OFFICIAL_TAG) \
 		--build-arg PROJECT_NAME=$$PROJECT_NAME \
 		-f ./Dockerfile.app . && \
 	docker tag $$BUILD_NAME:$$IMAGE_VERSION $(REGISTER_URL)/$$BUILD_NAME:$$IMAGE_VERSION && \
@@ -116,9 +119,11 @@ build-admin-pro:
 	echo "FILE_NAME: $$BUILD_FILE_NAME" && \
 	echo "BUILD_NAME: $$BUILD_NAME" && \
 	echo "IMAGE_VERSION: $$IMAGE_VERSION" && \
+	echo "NEW_API_OFFICIAL_TAG: $(NEW_API_OFFICIAL_TAG)" && \
 	docker build --platform linux/amd64 -t $$BUILD_NAME:$$IMAGE_VERSION \
 		--build-arg MODE=$$BUILD_MODE \
 		--build-arg VERSION=$$IMAGE_VERSION \
+		--build-arg NEW_API_OFFICIAL_TAG=$(NEW_API_OFFICIAL_TAG) \
 		--build-arg PROJECT_NAME=$$PROJECT_NAME \
 		-f ./Dockerfile.app . && \
 	docker tag $$BUILD_NAME:$$IMAGE_VERSION $(REGISTER_URL)/$$BUILD_NAME:$$IMAGE_VERSION && \

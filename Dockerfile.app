@@ -1,6 +1,7 @@
 FROM ubuntu:22.04
 
 ARG VERSION=1.0.0
+ARG NEW_API_OFFICIAL_TAG=v1.0.0-rc.30
 ARG MODE=dev
 ARG PROJECT_NAME=new-api
 ARG PACKAGE_NAME=${PROJECT_NAME}_${MODE}.${VERSION}
@@ -8,6 +9,8 @@ ARG APT_MIRROR=mirrors.tuna.tsinghua.edu.cn
 ARG APT_FALLBACK_MIRROR=mirrors.ustc.edu.cn
 
 ENV PROJECT_NAME=${PROJECT_NAME}
+ENV NEW_API_OFFICIAL_TAG=${NEW_API_OFFICIAL_TAG}
+ENV VERSION=${NEW_API_OFFICIAL_TAG}
 
 RUN set -eux; \
  sed -i "s@http://archive.ubuntu.com/ubuntu/@http://${APT_MIRROR}/ubuntu/@g" /etc/apt/sources.list; \
