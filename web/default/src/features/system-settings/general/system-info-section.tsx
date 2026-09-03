@@ -30,14 +30,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { FormDirtyIndicator } from '../components/form-dirty-indicator'
 import { FormNavigationGuard } from '../components/form-navigation-guard'
@@ -156,52 +148,6 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
             <SettingsFormGrid>
               <FormField
                 control={form.control}
-                name='theme.frontend'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Frontend Theme')}</FormLabel>
-                    <Select
-                      items={[
-                        {
-                          value: 'default',
-                          label: t('Default (New Frontend)'),
-                        },
-                        {
-                          value: 'classic',
-                          label: t('Classic (Legacy Frontend)'),
-                        },
-                      ]}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className='w-full'>
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent alignItemWithTrigger={false}>
-                        <SelectGroup>
-                          <SelectItem value='default'>
-                            {t('Default (New Frontend)')}
-                          </SelectItem>
-                          <SelectItem value='classic'>
-                            {t('Classic (Legacy Frontend)')}
-                          </SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      {t(
-                        'Switch between the new frontend and the classic frontend. Changes take effect after page reload.'
-                      )}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name='SystemName'
                 render={({ field }) => (
                   <FormItem>
@@ -255,54 +201,56 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name='Footer'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Footer')}</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder={t(
-                          '© 2025 Your Company. All rights reserved.'
+              <SettingsFormGridItem span='full'>
+                <FormField
+                  control={form.control}
+                  name='Footer'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('Footer')}</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder={t(
+                            '© 2025 Your Company. All rights reserved.'
+                          )}
+                          rows={4}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {t('Footer text displayed at the bottom of pages')}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </SettingsFormGridItem>
+              <SettingsFormGridItem span='full'>
+                <FormField
+                  control={form.control}
+                  name='About'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('About')}</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder={t(
+                            'Enter HTML code (e.g., <p>About us...</p>) or a URL (e.g., https://example.com) to embed as iframe'
+                          )}
+                          rows={4}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {t(
+                          'Supports HTML markup or iframe embedding. Enter HTML code directly, or provide a complete URL to automatically embed it as an iframe.'
                         )}
-                        rows={4}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {t('Footer text displayed at the bottom of pages')}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='About'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('About')}</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder={t(
-                          'Enter HTML code (e.g., <p>About us...</p>) or a URL (e.g., https://example.com) to embed as iframe'
-                        )}
-                        rows={4}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {t(
-                        'Supports HTML markup or iframe embedding. Enter HTML code directly, or provide a complete URL to automatically embed it as an iframe.'
-                      )}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </SettingsFormGridItem>
 
               <SettingsFormGridItem span='full'>
                 <FormField
@@ -328,56 +276,58 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
                   )}
                 />
               </SettingsFormGridItem>
-
-              <FormField
-                control={form.control}
-                name='legal.user_agreement'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('User Agreement')}</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder={t(
-                          'Provide Markdown, HTML, or an external URL for the user agreement'
+              <SettingsFormGridItem span='full'>
+                <FormField
+                  control={form.control}
+                  name='legal.user_agreement'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('User Agreement')}</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder={t(
+                            'Provide Markdown, HTML, or an external URL for the user agreement'
+                          )}
+                          rows={6}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {t(
+                          'Leave empty to disable the agreement requirement. Supports Markdown, HTML, or a full URL to redirect users.'
                         )}
-                        rows={6}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {t(
-                        'Leave empty to disable the agreement requirement. Supports Markdown, HTML, or a full URL to redirect users.'
-                      )}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='legal.privacy_policy'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Privacy Policy')}</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder={t(
-                          'Provide Markdown, HTML, or an external URL for the privacy policy'
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </SettingsFormGridItem>
+              <SettingsFormGridItem span='full'>
+                <FormField
+                  control={form.control}
+                  name='legal.privacy_policy'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('Privacy Policy')}</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder={t(
+                            'Provide Markdown, HTML, or an external URL for the privacy policy'
+                          )}
+                          rows={6}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {t(
+                          'Leave empty to disable the privacy policy requirement. Supports Markdown, HTML, or a full URL to redirect users.'
                         )}
-                        rows={6}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {t(
-                        'Leave empty to disable the privacy policy requirement. Supports Markdown, HTML, or a full URL to redirect users.'
-                      )}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </SettingsFormGridItem>
             </SettingsFormGrid>
           </SettingsForm>
         </Form>
