@@ -1,10 +1,16 @@
+<<<<<<< HEAD
 FRONTEND_DIR = ./web/default
 BACKEND_DIR = .
 DEV_FRONTEND_DEFAULT_PORT ?= 5173
 DEV_FRONTEND_CLASSIC_PORT ?= 5174
+=======
+WEB_DIR = ./web
+API_DIR = .
+DEV_WEB_PORT ?= 5173
+>>>>>>> v1.0.0-rc.30
 DEV_COMPOSE_FILE = docker-compose.dev.yml
 DEV_POSTGRES_SERVICE = postgres
-DEV_BACKEND_SERVICE = new-api
+DEV_API_SERVICE = new-api
 DEV_POSTGRES_DB = new-api
 DEV_POSTGRES_USER = root
 DEV_SQLITE_PATH ?= one-api.db
@@ -12,10 +18,15 @@ BUILD_FILE_DIR = ./dist
 REGISTER_URL := registry.cn-shenzhen.aliyuncs.com
 NAME_SPACE := iootx_ai
 
+<<<<<<< HEAD
 .PHONY: all build-frontend build-all-frontends build-backend build-no-frontend start-backend dev dev-api dev-api-rebuild dev-web dev-web-classic reset-setup
+=======
+.PHONY: all build-web build-all-web start-api dev dev-api dev-api-rebuild dev-web reset-setup test
+>>>>>>> v1.0.0-rc.30
 
-all: build-all-frontends start-backend
+all: build-all-web start-api
 
+<<<<<<< HEAD
 build-backend:
 	@echo "Building backend only (no frontend)..."
 	@cd $(BACKEND_DIR) && go build -tags no_frontend -o new-api
@@ -36,47 +47,43 @@ build-all-frontends: build-frontend
 start-backend:
 	@echo "Starting backend dev server..."
 	@cd $(BACKEND_DIR) && go run . &
+=======
+build-web:
+	@echo "Building web frontend..."
+	@cd $(WEB_DIR) && bun install --frozen-lockfile
+	@cd $(WEB_DIR) && DISABLE_ESLINT_PLUGIN='true' VITE_REACT_APP_VERSION=$$(cat ../VERSION) bun run build
+
+build-all-web: build-web
+
+start-api:
+	@echo "Starting api dev server..."
+	@cd $(API_DIR) && go run main.go &
+>>>>>>> v1.0.0-rc.30
 
 dev-api:
-	@echo "Starting backend services (docker)..."
+	@echo "Starting api services (docker)..."
 	@docker compose -f $(DEV_COMPOSE_FILE) up -d
 
 dev-api-rebuild:
-	@echo "Rebuilding and starting backend service (docker)..."
-	@docker compose -f $(DEV_COMPOSE_FILE) up -d --build $(DEV_BACKEND_SERVICE)
+	@echo "Rebuilding and starting api service (docker)..."
+	@docker compose -f $(DEV_COMPOSE_FILE) up -d --build $(DEV_API_SERVICE)
 
 dev-web:
-	@echo "Starting both frontend dev servers..."
-	@echo "Default frontend: http://localhost:$(DEV_FRONTEND_DEFAULT_PORT)"
-	@echo "Classic frontend: http://localhost:$(DEV_FRONTEND_CLASSIC_PORT)"
-	@cd ./web && bun install
-	@(cd $(FRONTEND_DIR) && bun run dev -- --host 0.0.0.0 --port $(DEV_FRONTEND_DEFAULT_PORT)) & \
-		default_pid=$$!; \
-		(cd $(FRONTEND_CLASSIC_DIR) && bun run dev -- --host 0.0.0.0 --port $(DEV_FRONTEND_CLASSIC_PORT)) & \
-		classic_pid=$$!; \
-		trap 'kill $$default_pid $$classic_pid 2>/dev/null; wait $$default_pid $$classic_pid 2>/dev/null; exit 130' INT TERM; \
-		while kill -0 $$default_pid 2>/dev/null && kill -0 $$classic_pid 2>/dev/null; do \
-			sleep 1; \
-		done; \
-		if ! kill -0 $$default_pid 2>/dev/null; then \
-			wait $$default_pid; \
-			status=$$?; \
-			kill $$classic_pid 2>/dev/null; \
-			wait $$classic_pid 2>/dev/null; \
-			exit $$status; \
-		fi; \
-		wait $$classic_pid; \
-		status=$$?; \
-		kill $$default_pid 2>/dev/null; \
-		wait $$default_pid 2>/dev/null; \
-		exit $$status
-
-dev-web-classic:
-	@echo "Starting classic frontend dev server..."
-	@cd ./web && bun install
-	@cd $(FRONTEND_CLASSIC_DIR) && bun run dev -- --host 0.0.0.0 --port $(DEV_FRONTEND_CLASSIC_PORT)
+	@echo "Starting web frontend dev server..."
+	@echo "Web frontend: http://localhost:$(DEV_WEB_PORT)"
+	@cd $(WEB_DIR) && bun install
+	@cd $(WEB_DIR) && bun run dev -- --host 0.0.0.0 --port $(DEV_WEB_PORT)
 
 dev: dev-api dev-web
+
+# The main package embeds the ignored web/dist output and is covered after build-web.
+test:
+	@echo "Testing root Go module..."
+	@root_module=$$(GOWORK=off go list -m); \
+		root_packages=$$(GOWORK=off go list -e ./... | grep -vxF "$$root_module"); \
+		GOWORK=off go test $$root_packages
+	@echo "Testing relaykit Go module..."
+	@cd relaykit && GOWORK=off go test ./...
 
 reset-setup:
 	@echo "Resetting local setup wizard state..."
@@ -87,15 +94,15 @@ reset-setup:
 			-c 'DELETE FROM setups;' \
 			-c 'DELETE FROM users WHERE role = 100;' \
 			-c "DELETE FROM options WHERE key IN ('SelfUseModeEnabled', 'DemoSiteEnabled');"; \
-		echo "Restarting docker dev backend so setup status is recalculated..."; \
-		docker compose -f $(DEV_COMPOSE_FILE) restart $(DEV_BACKEND_SERVICE); \
+		echo "Restarting docker dev api so setup status is recalculated..."; \
+		docker compose -f $(DEV_COMPOSE_FILE) restart $(DEV_API_SERVICE); \
 	elif db_path="$${SQLITE_PATH:-$(DEV_SQLITE_PATH)}"; db_path="$${db_path%%\?*}"; [ -f "$$db_path" ]; then \
 		db_path="$${SQLITE_PATH:-$(DEV_SQLITE_PATH)}"; \
 		db_path="$${db_path%%\?*}"; \
 		echo "Detected local SQLite database: $$db_path"; \
 		sqlite3 "$$db_path" \
 			"DELETE FROM setups; DELETE FROM users WHERE role = 100; DELETE FROM options WHERE key IN ('SelfUseModeEnabled', 'DemoSiteEnabled');"; \
-		echo "SQLite setup state reset. Restart the local backend process before testing the setup wizard."; \
+		echo "SQLite setup state reset. Restart the local api process before testing the setup wizard."; \
 	else \
 		echo "No running docker dev PostgreSQL or local SQLite database found."; \
 		echo "Start the dev stack with 'make dev-api', or set SQLITE_PATH/DEV_SQLITE_PATH to your local SQLite database."; \
