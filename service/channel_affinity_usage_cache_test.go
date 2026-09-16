@@ -49,6 +49,7 @@ func TestObserveChannelAffinityUsageCacheByRelayFormat_ClaudeMode(t *testing.T) 
 	require.EqualValues(t, 40, stats.CompletionTokens)
 	require.EqualValues(t, 140, stats.TotalTokens)
 	require.EqualValues(t, 30, stats.CachedTokens)
+	require.EqualValues(t, 30, stats.PromptCacheHitTokens)
 	require.Equal(t, cacheTokenRateModeCachedOverPromptPlusCached, stats.CachedTokenRateMode)
 }
 
@@ -79,6 +80,7 @@ func TestObserveChannelAffinityUsageCacheByRelayFormat_MixedMode(t *testing.T) {
 	require.EqualValues(t, 2, stats.Hit)
 	require.EqualValues(t, 180, stats.PromptTokens)
 	require.EqualValues(t, 30, stats.CachedTokens)
+	require.EqualValues(t, 30, stats.PromptCacheHitTokens)
 	require.Equal(t, cacheTokenRateModeMixed, stats.CachedTokenRateMode)
 }
 
@@ -101,5 +103,6 @@ func TestObserveChannelAffinityUsageCacheByRelayFormat_UnsupportedModeKeepsEmpty
 	require.EqualValues(t, 1, stats.Total)
 	require.EqualValues(t, 1, stats.Hit)
 	require.EqualValues(t, 25, stats.CachedTokens)
+	require.EqualValues(t, 25, stats.PromptCacheHitTokens)
 	require.Equal(t, "", stats.CachedTokenRateMode)
 }

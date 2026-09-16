@@ -922,8 +922,11 @@ func usageCacheSignals(usage *dto.Usage) (hit bool, cachedTokens int64, promptCa
 		cached = int64(usage.InputTokensDetails.CachedTokens)
 	}
 	pcht := int64(0)
-	if usage.PromptCacheHitTokens > 0 {
-		pcht = int64(usage.PromptCacheHitTokens)
+	if usage.GetPromptCacheHitTokens() > 0 {
+		pcht = int64(usage.GetPromptCacheHitTokens())
+	}
+	if pcht == 0 && cached > 0 {
+		pcht = cached
 	}
 	return cached > 0 || pcht > 0, cached, pcht
 }

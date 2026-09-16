@@ -226,13 +226,14 @@ type CompletionsStreamResponse struct {
 }
 
 type Usage struct {
-	PromptTokens         int           `json:"prompt_tokens"`
-	CompletionTokens     int           `json:"completion_tokens"`
-	TotalTokens          int           `json:"total_tokens"`
-	PromptCacheHitTokens int           `json:"prompt_cache_hit_tokens,omitempty"`
-	UsageSemantic        string        `json:"usage_semantic,omitempty"`
-	UsageSource          string        `json:"usage_source,omitempty"`
-	BillingUsage         *BillingUsage `json:"billing_usage,omitempty"`
+	PromptTokens          int           `json:"prompt_tokens"`
+	CompletionTokens      int           `json:"completion_tokens"`
+	TotalTokens           int           `json:"total_tokens"`
+	PromptCacheHitTokens  *int          `json:"prompt_cache_hit_tokens,omitempty"`
+	PromptCacheMissTokens *int          `json:"prompt_cache_miss_tokens,omitempty"`
+	UsageSemantic         string        `json:"usage_semantic,omitempty"`
+	UsageSource           string        `json:"usage_source,omitempty"`
+	BillingUsage          *BillingUsage `json:"billing_usage,omitempty"`
 
 	PromptTokensDetails    InputTokenDetails  `json:"prompt_tokens_details"`
 	CompletionTokenDetails OutputTokenDetails `json:"completion_tokens_details"`
@@ -246,6 +247,14 @@ type Usage struct {
 
 	// OpenRouter Params
 	Cost any `json:"cost,omitempty"`
+}
+
+// GetPromptCacheHitTokens 为计费和缓存统计提供数值，字段本身保留缺失与零值的区别。
+func (u *Usage) GetPromptCacheHitTokens() int {
+	if u.PromptCacheHitTokens == nil {
+		return 0
+	}
+	return *u.PromptCacheHitTokens
 }
 
 type OpenAIVideoResponse struct {

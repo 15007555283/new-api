@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/samber/lo"
 	"time"
 
 	"github.com/QuantumNous/new-api/common"
@@ -605,7 +607,7 @@ func TestUsageFromOpenAIBillingUsageNormalizesCacheDetailsWithoutOverwritingCano
 	responsesUsage := &dto.Usage{
 		InputTokens:          100,
 		OutputTokens:         10,
-		PromptCacheHitTokens: 55,
+		PromptCacheHitTokens: lo.ToPtr(55),
 		PromptTokensDetails: dto.InputTokenDetails{
 			CachedTokens: 8,
 			TextTokens:   12,
@@ -637,7 +639,7 @@ func TestUsageFromOpenAIBillingUsageFallsBackToPromptCacheHitTokens(t *testing.T
 		BillingUsage: dto.NewOpenAIChatBillingUsage(&dto.Usage{
 			PromptTokens:         100,
 			CompletionTokens:     10,
-			PromptCacheHitTokens: 35,
+			PromptCacheHitTokens: lo.ToPtr(35),
 		}),
 	})
 

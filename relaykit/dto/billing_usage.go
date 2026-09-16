@@ -83,7 +83,7 @@ func HasOpenAIUsageTokens(usage *Usage) bool {
 		usage.TotalTokens != 0 ||
 		usage.InputTokens != 0 ||
 		usage.OutputTokens != 0 ||
-		usage.PromptCacheHitTokens != 0 ||
+		usage.GetPromptCacheHitTokens() != 0 ||
 		usage.ClaudeCacheCreation5mTokens != 0 ||
 		usage.ClaudeCacheCreation1hTokens != 0 {
 		return true
@@ -273,8 +273,8 @@ func (usage *BillingUsage) canonicalOpenAIUsage() *Usage {
 		mergeInputTokenDetails(&filled, canonical.PromptTokensDetails)
 		canonical.PromptTokensDetails = filled
 	}
-	if canonical.PromptTokensDetails.CachedTokens == 0 && canonical.PromptCacheHitTokens > 0 {
-		canonical.PromptTokensDetails.CachedTokens = canonical.PromptCacheHitTokens
+	if canonical.PromptTokensDetails.CachedTokens == 0 && canonical.GetPromptCacheHitTokens() > 0 {
+		canonical.PromptTokensDetails.CachedTokens = canonical.GetPromptCacheHitTokens()
 	}
 	if canonical.PromptTokens == 0 && canonical.InputTokens > 0 {
 		canonical.PromptTokens = canonical.InputTokens

@@ -172,8 +172,8 @@ func TestMergeClaudeUsageNonZeroPreservesBillingUsage(t *testing.T) {
 	t.Parallel()
 
 	currentSidecar := NewGeminiChatBillingUsage(&GeminiUsageMetadata{
-		PromptTokenCount:    3868,
-		TotalTokenCount:     3868,
+		PromptTokenCount:        3868,
+		TotalTokenCount:         3868,
 		CachedContentTokenCount: 20,
 	})
 	incomingSidecar := NewGeminiChatBillingUsage(&GeminiUsageMetadata{
@@ -231,4 +231,19 @@ func TestMergeUsageNonZeroKeepsPositiveValuesAndTakesMaxTotal(t *testing.T) {
 	assert.Equal(t, 10, merged.PromptTokens)
 	assert.Equal(t, 5, merged.CompletionTokens)
 	assert.Equal(t, 20, merged.TotalTokens)
+}
+
+func TestMergeUsagePreservesExplicitCacheZeroAndPreviousCounts(t *testing.T) {
+	zero, hit, miss := 0, 40, 60
+	merged := MergeUsageNonZero(nil, &Usage{PromptTokens: 100, PromptCacheHitTokens: &zero, PromptCacheMissTokens: &miss})
+	require.NotNil(t, merged.PromptCacheHitTokens)
+	assert.Equal(t, 0, *merged.PromptCacheHitTokens)
+	merged = MergeUsageNonZero(merged, &Usage{PromptCacheHitTokens: &hit})
+	merged = MergeUsageNonZero(merged, &Usage{PromptCacheHitTokens: &zero, PromptCacheMissTokens: &zero})
+	require.NotNil(t, merged.PromptCacheMissTokens)
+	assert.Equal(t, 40, *merged.PromptCacheHitTokens)
+	assert.Equal(t, 60, *merged.PromptCacheMissTokens)
+	canonical, ok := NewOpenAIChatBillingUsage(merged).CanonicalUsage()
+	require.True(t, ok)
+	assert.Equal(t, 40, canonical.PromptTokensDetails.CachedTokens)
 }

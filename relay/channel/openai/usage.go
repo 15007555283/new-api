@@ -1,31 +1,38 @@
 package openai
 
 import (
+	"strings"
+
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/constant"
 	relaycommon "github.com/QuantumNous/new-api/relay/common"
 	"github.com/QuantumNous/new-api/relaykit/dto"
 )
 
-func applyUsagePostProcessing(info *relaycommon.RelayInfo, usage *dto.Usage, responseBody []byte) {
+func applyUsagePostProcessing(info *relaycommon.RelayInfo, usage *dto.Usage, responseBody []byte) bool {
 	if info == nil || usage == nil {
-		return
+		return false
 	}
 
+	modified := false
 	switch info.ChannelType {
 	case constant.ChannelTypeDeepSeek:
-		if usage.PromptTokensDetails.CachedTokens == 0 && usage.PromptCacheHitTokens != 0 {
-			usage.PromptTokensDetails.CachedTokens = usage.PromptCacheHitTokens
+		if usage.PromptTokensDetails.CachedTokens == 0 && usage.GetPromptCacheHitTokens() != 0 {
+			usage.PromptTokensDetails.CachedTokens = usage.GetPromptCacheHitTokens()
+			modified = true
 		}
 	case constant.ChannelTypeZhipu_v4:
 		// 智普的cached_tokens在标准位置: usage.prompt_tokens_details.cached_tokens
 		if usage.PromptTokensDetails.CachedTokens == 0 {
 			if usage.InputTokensDetails != nil && usage.InputTokensDetails.CachedTokens > 0 {
 				usage.PromptTokensDetails.CachedTokens = usage.InputTokensDetails.CachedTokens
+				modified = true
 			} else if cachedTokens, ok := extractCachedTokensFromBody(responseBody); ok {
 				usage.PromptTokensDetails.CachedTokens = cachedTokens
-			} else if usage.PromptCacheHitTokens > 0 {
-				usage.PromptTokensDetails.CachedTokens = usage.PromptCacheHitTokens
+				modified = true
+			} else if usage.GetPromptCacheHitTokens() > 0 {
+				usage.PromptTokensDetails.CachedTokens = usage.GetPromptCacheHitTokens()
+				modified = true
 			}
 		}
 	case constant.ChannelTypeMoonshot:
@@ -33,21 +40,57 @@ func applyUsagePostProcessing(info *relaycommon.RelayInfo, usage *dto.Usage, res
 		if usage.PromptTokensDetails.CachedTokens == 0 {
 			if usage.InputTokensDetails != nil && usage.InputTokensDetails.CachedTokens > 0 {
 				usage.PromptTokensDetails.CachedTokens = usage.InputTokensDetails.CachedTokens
+				modified = true
 			} else if cachedTokens, ok := extractMoonshotCachedTokensFromBody(responseBody); ok {
 				usage.PromptTokensDetails.CachedTokens = cachedTokens
+				modified = true
 			} else if cachedTokens, ok := extractCachedTokensFromBody(responseBody); ok {
 				usage.PromptTokensDetails.CachedTokens = cachedTokens
-			} else if usage.PromptCacheHitTokens > 0 {
-				usage.PromptTokensDetails.CachedTokens = usage.PromptCacheHitTokens
+				modified = true
+			} else if usage.GetPromptCacheHitTokens() > 0 {
+				usage.PromptTokensDetails.CachedTokens = usage.GetPromptCacheHitTokens()
+				modified = true
 			}
 		}
 	case constant.ChannelTypeOpenAI:
 		if usage.PromptTokensDetails.CachedTokens == 0 {
 			if cachedTokens, ok := extractLlamaCachedTokensFromBody(responseBody); ok {
 				usage.PromptTokensDetails.CachedTokens = cachedTokens
+				modified = true
 			}
 		}
 	}
+	if usage.PromptTokensDetails.CachedTokens == 0 && usage.InputTokensDetails != nil && usage.InputTokensDetails.CachedTokens > 0 {
+		usage.PromptTokensDetails.CachedTokens = usage.InputTokensDetails.CachedTokens
+		modified = true
+	}
+	if usage.PromptTokensDetails.CachedTokens == 0 && usage.GetPromptCacheHitTokens() > 0 {
+		usage.PromptTokensDetails.CachedTokens = usage.GetPromptCacheHitTokens()
+		modified = true
+	}
+	if usage.PromptCacheHitTokens == nil && usage.PromptTokensDetails.CachedTokens > 0 {
+		cachedTokens := usage.PromptTokensDetails.CachedTokens
+		usage.PromptCacheHitTokens = &cachedTokens
+		modified = true
+	}
+	// 仅对 DeepSeek 补齐原生缓存契约；未知缓存用量不能当成未命中。
+	if info.ChannelType == constant.ChannelTypeDeepSeek || strings.HasPrefix(strings.ToLower(info.UpstreamModelName), "deepseek-") {
+		if usage.PromptCacheHitTokens == nil {
+			if cachedTokens, ok := extractCachedTokensFromBody(responseBody); ok && cachedTokens >= 0 && cachedTokens <= usage.PromptTokens {
+				usage.PromptCacheHitTokens = &cachedTokens
+				modified = true
+			}
+		}
+		if usage.PromptCacheMissTokens == nil && usage.PromptCacheHitTokens != nil {
+			hit := *usage.PromptCacheHitTokens
+			if hit >= 0 && hit <= usage.PromptTokens {
+				miss := usage.PromptTokens - hit
+				usage.PromptCacheMissTokens = &miss
+				modified = true
+			}
+		}
+	}
+	return modified
 }
 
 func extractCachedTokensFromBody(body []byte) (int, bool) {

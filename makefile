@@ -12,9 +12,11 @@ REGISTER_URL := registry.cn-shenzhen.aliyuncs.com
 NAME_SPACE := iootx_ai
 NEW_API_OFFICIAL_TAG ?= v1.0.0-rc.30
 
-.PHONY: all build-web build-all-web start-api dev dev-api dev-api-rebuild dev-web reset-setup test
+.PHONY: all all_app build-web build-all-web start-api dev dev-api dev-api-rebuild dev-web reset-setup test
 
 all: build-all-web start-api
+
+all_app: build-api-pro build-admin-pro
 
 build-web:
 	@echo "Building web frontend..."

@@ -10,7 +10,6 @@ ARG APT_FALLBACK_MIRROR=mirrors.ustc.edu.cn
 
 ENV PROJECT_NAME=${PROJECT_NAME}
 ENV NEW_API_OFFICIAL_TAG=${NEW_API_OFFICIAL_TAG}
-ENV VERSION=${NEW_API_OFFICIAL_TAG}
 
 RUN set -eux; \
  sed -i "s@http://archive.ubuntu.com/ubuntu/@http://${APT_MIRROR}/ubuntu/@g" /etc/apt/sources.list; \
@@ -38,6 +37,8 @@ COPY ./dist/${PROJECT_NAME}-${MODE}.${VERSION} ${WORK_DIR}/${PROJECT_NAME}-${MOD
 RUN ln -s ${WORK_DIR}/${PROJECT_NAME}-${MODE}.${VERSION} ${WORK_DIR}/${PROJECT_NAME}
 
 RUN chmod +x ${WORK_DIR}/${PROJECT_NAME}
+
+ENV VERSION=${NEW_API_OFFICIAL_TAG}
 
 # 复制配置文件
 COPY .env.${MODE} ${WORK_DIR}/.env

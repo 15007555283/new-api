@@ -172,18 +172,27 @@ func OaiStreamHandler(c *gin.Context, info *relaycommon.RelayInfo, resp *http.Re
 		}
 	}
 
-	if info.RelayFormat == types.RelayFormatOpenAI {
-		if shouldSendLastResp {
-			_ = sendStreamData(c, info, lastStreamData, info.ChannelSetting.ForceFormat, info.ChannelSetting.ThinkingToContent)
-		}
-	}
-
 	if !containStreamUsage {
 		usage = service.ResponseText2Usage(c, responseTextBuilder.String(), info.UpstreamModelName, info.GetEstimatePromptTokens())
 		usage.CompletionTokens += toolCount * 7
 	}
 
-	applyUsagePostProcessing(info, usage, common.StringToByteSlice(usageFrame))
+	usageModified := applyUsagePostProcessing(info, usage, common.StringToByteSlice(usageFrame))
+	if usageModified && containStreamUsage && usageFrame == lastStreamData {
+		var lastStreamResponse dto.ChatCompletionsStreamResponse
+		if err := common.Unmarshal(common.StringToByteSlice(lastStreamData), &lastStreamResponse); err == nil {
+			lastStreamResponse.Usage = usage
+			if data, err := common.Marshal(lastStreamResponse); err == nil {
+				lastStreamData = string(data)
+			}
+		}
+	}
+
+	if info.RelayFormat == types.RelayFormatOpenAI {
+		if shouldSendLastResp {
+			_ = sendStreamData(c, info, lastStreamData, info.ChannelSetting.ForceFormat, info.ChannelSetting.ThinkingToContent)
+		}
+	}
 
 	for _, name := range streamFunctionCallNames {
 		info.CountBillableToolCall(dto.BuildInCallFunctionCall, name)
@@ -308,7 +317,9 @@ func OpenaiHandler(c *gin.Context, info *relaycommon.RelayInfo, resp *http.Respo
 		usageModified = true
 	}
 
-	applyUsagePostProcessing(info, &simpleResponse.Usage, responseBody)
+	if applyUsagePostProcessing(info, &simpleResponse.Usage, responseBody) {
+		usageModified = true
+	}
 
 	switch info.RelayFormat {
 	case types.RelayFormatOpenAI:
